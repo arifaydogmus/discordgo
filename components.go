@@ -49,6 +49,14 @@ func (umc *unmarshalableMessageComponent) UnmarshalJSON(src []byte) error {
 		umc.MessageComponent = &SelectMenu{}
 	case TextInputComponent:
 		umc.MessageComponent = &TextInput{}
+	case UserSelectComponent:
+		umc.MessageComponent = &UserSelect{}
+	case RoleSelectComponent:
+		umc.MessageComponent = &RoleSelect{}
+	case MentionableComponent:
+		umc.MessageComponent = &MentionableSelect{}
+	case ChannelSelectComponent:
+		umc.MessageComponent = &ChannelSelect{}
 	default:
 		return fmt.Errorf("unknown component type: %d", v.Type)
 	}
@@ -173,8 +181,8 @@ type SelectMenuOption struct {
 	Default bool `json:"default"`
 }
 
-// SelectMenu represents select menu component.
-type SelectMenu struct {
+// SelectBase represents select components shared properties.
+type SelectBase struct {
 	CustomID string `json:"custom_id,omitempty"`
 	// The text which will be shown in the menu if there's no default options or all options was deselected and component was closed.
 	Placeholder string `json:"placeholder"`
@@ -182,11 +190,14 @@ type SelectMenu struct {
 	MinValues int `json:"min_values,omitempty"`
 	// This value determines the maximal amount of selected items in the menu.
 	// If MaxValues or MinValues are greater than one then the user can select multiple items in the component.
-	MaxValues int                `json:"max_values,omitempty"`
-	Options   []SelectMenuOption `json:"options,omitempty"`
-	Disabled  bool               `json:"disabled"`
-	// Only for Type 8 Channels Select
-	ChannelTypes []ChannelType `json:"channel_types,omitempty"`
+	MaxValues int  `json:"max_values,omitempty"`
+	Disabled  bool `json:"disabled"`
+}
+
+// SelectMenu represents select menu component.
+type SelectMenu struct {
+	SelectBase
+	Options []SelectMenuOption `json:"options,omitempty"`
 }
 
 // Type is a method to get the type of a component.
@@ -245,3 +256,97 @@ const (
 	TextInputShort     TextInputStyle = 1
 	TextInputParagraph TextInputStyle = 2
 )
+
+// User selection dropdown
+type UserSelect struct {
+	SelectBase
+}
+
+// Type is a method to get the type of a component.
+func (UserSelect) Type() ComponentType {
+	return UserSelectComponent
+}
+
+// MarshalJSON is a method for marshaling SelectMenu to a JSON object.
+func (m UserSelect) MarshalJSON() ([]byte, error) {
+	type userSelect UserSelect
+
+	return Marshal(struct {
+		userSelect
+		Type ComponentType `json:"type"`
+	}{
+		userSelect: userSelect(m),
+		Type:       m.Type(),
+	})
+}
+
+// User selection dropdown
+type RoleSelect struct {
+	SelectBase
+}
+
+// Type is a method to get the type of a component.
+func (RoleSelect) Type() ComponentType {
+	return RoleSelectComponent
+}
+
+// MarshalJSON is a method for marshaling SelectMenu to a JSON object.
+func (m RoleSelect) MarshalJSON() ([]byte, error) {
+	type roleSelect RoleSelect
+
+	return Marshal(struct {
+		roleSelect
+		Type ComponentType `json:"type"`
+	}{
+		roleSelect: roleSelect(m),
+		Type:       m.Type(),
+	})
+}
+
+// Mentionable selection dropdown
+type MentionableSelect struct {
+	SelectBase
+}
+
+// Type is a method to get the type of a component.
+func (MentionableSelect) Type() ComponentType {
+	return MentionableComponent
+}
+
+// MarshalJSON is a method for marshaling SelectMenu to a JSON object.
+func (m MentionableSelect) MarshalJSON() ([]byte, error) {
+	type mentionableSelect MentionableSelect
+
+	return Marshal(struct {
+		mentionableSelect
+		Type ComponentType `json:"type"`
+	}{
+		mentionableSelect: mentionableSelect(m),
+		Type:              m.Type(),
+	})
+}
+
+// SelectMenu represents select menu component.
+type ChannelSelect struct {
+	SelectBase
+	// Only for Type 8 Channels Select
+	ChannelTypes []ChannelType `json:"channel_types,omitempty"`
+}
+
+// Type is a method to get the type of a component.
+func (ChannelSelect) Type() ComponentType {
+	return ChannelSelectComponent
+}
+
+// MarshalJSON is a method for marshaling SelectMenu to a JSON object.
+func (m ChannelSelect) MarshalJSON() ([]byte, error) {
+	type channelSelect ChannelSelect
+
+	return Marshal(struct {
+		channelSelect
+		Type ComponentType `json:"type"`
+	}{
+		channelSelect: channelSelect(m),
+		Type:          m.Type(),
+	})
+}
