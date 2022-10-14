@@ -10,10 +10,14 @@ type ComponentType uint
 
 // MessageComponent types.
 const (
-	ActionsRowComponent ComponentType = 1
-	ButtonComponent     ComponentType = 2
-	SelectMenuComponent ComponentType = 3
-	TextInputComponent  ComponentType = 4
+	ActionsRowComponent    ComponentType = 1
+	ButtonComponent        ComponentType = 2
+	SelectMenuComponent    ComponentType = 3
+	TextInputComponent     ComponentType = 4
+	UserSelectComponent    ComponentType = 5
+	RoleSelectComponent    ComponentType = 6
+	MentionableComponent   ComponentType = 7
+	ChannelSelectComponent ComponentType = 8
 )
 
 // MessageComponent is a base interface for all message components.
@@ -175,12 +179,14 @@ type SelectMenu struct {
 	// The text which will be shown in the menu if there's no default options or all options was deselected and component was closed.
 	Placeholder string `json:"placeholder"`
 	// This value determines the minimal amount of selected items in the menu.
-	MinValues *int `json:"min_values,omitempty"`
+	MinValues int `json:"min_values,omitempty"`
 	// This value determines the maximal amount of selected items in the menu.
 	// If MaxValues or MinValues are greater than one then the user can select multiple items in the component.
 	MaxValues int                `json:"max_values,omitempty"`
-	Options   []SelectMenuOption `json:"options"`
+	Options   []SelectMenuOption `json:"options,omitempty"`
 	Disabled  bool               `json:"disabled"`
+	// Only for Type 8 Channels Select
+	ChannelTypes []ChannelType `json:"channel_types,omitempty"`
 }
 
 // Type is a method to get the type of a component.
